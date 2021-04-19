@@ -50,16 +50,16 @@ def _rm_tree(pth):
             _rm_tree(child)
     pth.rmdir()
       
-def create(m: str):
+def create(m: str, new=True):
     y = yaml.load(m, Loader=yaml.FullLoader)
     assert "kind" in y
     _dir = Path(workdir, y["kind"].lower())
    
-    if _dir.is_dir():
+    if _dir.is_dir() and new:
         _rm_tree(_dir)
     Path(_dir, "driver").mkdir(parents=True, exist_ok=True)
     Path(_dir, "deploy").mkdir(parents=True, exist_ok=True)
-    Path(_dir, "deploy", "cr.yaml").touch()
+    Path(_dir, "deploy", "cr_run.yaml").touch()
     Path(_dir, "driver", "handler.py").touch()
     with open(Path(_dir, "model.yaml"), "w") as f:
         f.write(m)
@@ -67,5 +67,8 @@ def create(m: str):
 def handler_file(k):
     return Path(workdir, k, "driver", "handler.py")
 
-def model_file(k):
-    return Path(workdir, k, "deploy", "cr.yaml")
+def model_file(k, new=True):
+    if new:
+        return Path(workdir, k, "deploy", "cr.yaml")
+    else:
+        return Path(workdir, k, "deploy", "cr_run.yaml")
